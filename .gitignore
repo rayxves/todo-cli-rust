@@ -1,0 +1,8 @@
+target/
+Cargo.lock
+.cache/
+.cargo/
+.config/
+.docker/
+.gitconfig
+.vscode/
