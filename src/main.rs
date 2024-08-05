@@ -15,6 +15,6 @@ fn main() {
         Args { concluded_task: Some(_), .. } => complete_task(&args).unwrap(),
         Args { view_tasks: Some(true), .. } => view_tasks(&args).unwrap(),
         Args { view_concluded_tasks: Some(true), .. } => view_concluded_tasks(&args).unwrap(),
-        _ => println!("{}", "Nenhum comando válido foi fornecido.".red())
+        _ => println!("{}", "No valid command provided.".red())
     }
 }

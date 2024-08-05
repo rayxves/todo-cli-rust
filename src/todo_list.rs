@@ -6,27 +6,27 @@ use std::io::{self, Read, Write};
 use colored::*;
 
 #[derive(Debug, Parser)]
-#[command(author = "Rayssa", version = "1.0", about = "Todo-list feito a partir de CLI.")]
+#[command(author = "Rayssa", version = "1.0", about = "Todo-list created from CLI.")]
 pub struct Args {
-    #[arg(short, long, help = "Adiciona uma nova task, o primeiro argumento deve ser o nome da task e o segundo deve ser a data de conclusão.", num_args(1..))]
+    #[arg(short, long, help = "Adds a new task; the first argument should be the task name and the second should be the completion date.", num_args(1..))]
     pub add_task: Option<Vec<String>>,
 
-    #[arg(short, long, help = "Remove a task especificada pelo nome.")]
+    #[arg(short, long, help = "Removes a task specified by name.")]
     pub remove_task: Option<String>,
 
-    #[arg(short, long, help = "Muda o nome da task, o primeiro argumento é o antigo nome da task e o segundo é o novo nome", num_args(1..))]
+    #[arg(short, long, help = "Changes the name of a task; the first argument is the old name and the second is the new name.", num_args(1..))]
     pub update_name: Option<Vec<String>>,
 
-    #[arg(short = 't', long, help = "Muda o tempo de conclusão da task, o primeiro argumento é o nome da task e o segundo é o novo tempo para conclusão.", num_args(1..))]
+    #[arg(short = 't', long, help = "Changes the completion time of a task; the first argument is the task name and the second is the new completion time.", num_args(1..))]
     pub update_concluded_time: Option<Vec<String>>,
 
-    #[arg(short, long, help = "Imprime todas as tasks não concluídas")]
+    #[arg(short, long, help = "Prints all incomplete tasks.")]
     pub view_tasks: Option<bool>,
 
-    #[arg(short, long, help = "Marca uma task como concluída pelo nome.")]
+    #[arg(short, long, help = "Marks a task as completed by name.")]
     pub concluded_task: Option<String>,
 
-    #[arg(short = 'w', long, help = "Imprime todas as tasks já concluídas")]
+    #[arg(short = 'w', long, help = "Prints all completed tasks.")]
     pub view_concluded_tasks: Option<bool>
 }
 
@@ -45,7 +45,7 @@ fn read_tasks_from_file(filename: &str) -> io::Result<Vec<NewTask>> {
             Ok(tasks)
         }
         Err(_) => {
-            // Cria o arquivo se não existir
+            // Create the file if it doesn't exist
             fs::File::create(filename)?;
             Ok(vec![])
         }
@@ -74,9 +74,9 @@ pub fn create_new_task(args: &Args) -> io::Result<()> {
             tasks.push(new_task);
             write_tasks_to_file("src/serde.json", &tasks)?;
 
-            println!("{}", "Task adicionada com sucesso.".green());
+            println!("{}", "Task added successfully.".green());
         } else {
-            println!("{}", "É necessário passar dois argumentos.".red());
+            println!("{}", "Two arguments are required.".red());
         }
     }
     Ok(())
@@ -86,11 +86,11 @@ pub fn view_tasks(args: &Args) -> io::Result<()> {
     if let Some(view) = &args.view_tasks {
         if *view {
             let json_data = read_tasks_from_file("src/serde.json")?;
-            println!("{}", "\n--------------------------\nTasks para concluir: \n--------------------------".bright_red());
+            println!("{}", "\n--------------------------\nTasks to be completed: \n--------------------------".bright_red());
             for (i, task) in json_data.iter().enumerate() {
                 println!("{}", format!("#{}º", i + 1).white());
-                println!("{}", format!("Nome: {}", task.name).green());
-                println!("{}", format!("Prazo de conclusão: {}\n", task.completion_time).green());
+                println!("{}", format!("Name: {}", task.name).green());
+                println!("{}", format!("Completion deadline: {}\n", task.completion_time).green());
             }
         }
     }
@@ -104,7 +104,7 @@ pub fn remove_task(args: &Args) -> io::Result<()> {
 
         write_tasks_to_file("src/serde.json", &json_data)?;
 
-        println!("{}", "Task removida com sucesso.".green());
+        println!("{}", "Task removed successfully.".green());
     }
     Ok(())
 }
@@ -112,7 +112,7 @@ pub fn remove_task(args: &Args) -> io::Result<()> {
 pub fn update_task_name(args: &Args) -> io::Result<()> {
     if let Some(task_to_update) = &args.update_name {
         if task_to_update.len() < 2 {
-            println!("{}", "É necessário fornecer o nome atual e o novo nome da tarefa.".red());
+            println!("{}", "You must provide the current name and the new name of the task.".red());
             return Ok(());
         }
 
@@ -128,9 +128,9 @@ pub fn update_task_name(args: &Args) -> io::Result<()> {
         }
         if task_found {
             write_tasks_to_file("src/serde.json", &json_data)?;
-            println!("{}", "Task atualizada com sucesso.".green());
+            println!("{}", "Task updated successfully.".green());
         } else {
-            println!("{}", "Task não encontrada.".red());
+            println!("{}", "Task not found.".red());
         }
     }
     Ok(())
@@ -139,7 +139,7 @@ pub fn update_task_name(args: &Args) -> io::Result<()> {
 pub fn update_task_completion_time(args: &Args) -> io::Result<()> {
     if let Some(task_to_update) = &args.update_concluded_time {
         if task_to_update.len() < 2 {
-            println!("{}", "É necessário fornecer o nome da tarefa e o novo tempo de conclusão.".red());
+            println!("{}", "You must provide the task name and the new completion time.".red());
             return Ok(());
         }
 
@@ -155,9 +155,9 @@ pub fn update_task_completion_time(args: &Args) -> io::Result<()> {
         }
         if task_found {
             write_tasks_to_file("src/serde.json", &json_data)?;
-            println!("{}", "Task atualizada com sucesso.".green());
+            println!("{}", "Task updated successfully.".green());
         } else {
-            println!("{}", "Task não encontrada.".red());
+            println!("{}", "Task not found.".red());
         }
     }
     Ok(())
@@ -173,18 +173,18 @@ pub fn complete_task(args: &Args) -> io::Result<()> {
             if task.name == *concluded_task {
                 completed_tasks.push(task.clone());
                 task_found = true;
-                false // remove a tarefa do arquivo original
+                false
             } else {
-                true //mantém a tarefa no arquivo original
+                true 
             }
         });
 
         if task_found {
             write_tasks_to_file("src/serde.json", &json_file)?;
             write_tasks_to_file("src/completed_tasks.json", &completed_tasks)?;
-            println!("{}", "Task adicionada a tarefas concluídas.".green());
+            println!("{}", "Task added to completed tasks.".green());
         } else {
-            println!("{}", "Task não encontrada.".red());
+            println!("{}", "Task not found.".red());
         }
     }
     Ok(())
@@ -194,11 +194,11 @@ pub fn view_concluded_tasks(args: &Args) -> io::Result<()> {
     if let Some(view) = &args.view_concluded_tasks {
         if *view {
             let json_data = read_tasks_from_file("src/completed_tasks.json")?;
-            println!("{}", "\n--------------------------\nTasks já concluídas: \n--------------------------".bright_red());
+            println!("{}", "\n--------------------------\nCompleted tasks: \n--------------------------".bright_red());
             for (i, task) in json_data.iter().enumerate() {
                 println!("{}", format!("#{}º", i + 1).white());
-                println!("{}", format!("Nome: {}", task.name).green());
-                println!("{}", format!("Prazo de conclusão: {}\n", task.completion_time).green());
+                println!("{}", format!("Name: {}", task.name).green());
+                println!("{}", format!("Completion deadline: {}\n", task.completion_time).green());
             }
         }
     }
