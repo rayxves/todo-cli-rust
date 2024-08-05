@@ -1,12 +1,5 @@
 # Todo CLI
 
-A simple command-line todo list application built with Rust.
-
-## Usage
-
-### Adding a Task
-# Todo CLI
-
 A simple command-line todo list application built with Rust. Manage your tasks with ease from the command line.
 
 ## Features
