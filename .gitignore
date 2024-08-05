@@ -11,3 +11,5 @@
 # Ignore directories
 node_modules/
 target/
+src/serde.json
+src/completed_tasks.json
