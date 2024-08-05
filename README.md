@@ -49,7 +49,7 @@ View all tasks that are yet to be completed:
 
 
 ```bash
-cargo run -- --view-tasks
+cargo run -- --view-tasks="true"
 ```
 
 ### Removing a Task
@@ -86,5 +86,5 @@ cargo run -- --concluded-task "Task Name"
 View all tasks that have been marked as completed:
 
  ```bash
-cargo run -- --view-concluded-tasks
+cargo run -- --view-concluded-tasks="true"
 ```
