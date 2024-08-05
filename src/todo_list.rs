@@ -45,7 +45,6 @@ fn read_tasks_from_file(filename: &str) -> io::Result<Vec<NewTask>> {
             Ok(tasks)
         }
         Err(_) => {
-            // Create the file if it doesn't exist
             fs::File::create(filename)?;
             Ok(vec![])
         }
