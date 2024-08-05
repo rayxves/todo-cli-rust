@@ -1,8 +1,13 @@
+# Ignore all files
+*
+
+# Except this file
+!.gitignore
+
+# Ignore specific file types
+*.log
+*.tmp
+
+# Ignore directories
+node_modules/
 target/
-Cargo.lock
-.cache/
-.cargo/
-.config/
-.docker/
-.gitconfig
-.vscode/
