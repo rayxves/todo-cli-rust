@@ -5,6 +5,7 @@ use std::fs;
 use std::io::{self, Read, Write};
 use colored::*;
 
+/// Struct para armazenar os argumentos do CLI.
 #[derive(Debug, Parser)]
 #[command(author = "Rayssa", version = "1.0", about = "Todo-list created from CLI.")]
 pub struct Args {
@@ -37,34 +38,22 @@ struct NewTask {
 }
 
 fn read_tasks_from_file(filename: &str) -> io::Result<Vec<NewTask>> {
-    match fs::File::open(filename) {
-        Ok(mut json_file) => {
-            let mut data = String::new();
-            json_file.read_to_string(&mut data)?;
-            let tasks: Vec<NewTask> = serde_json::from_str(&data).unwrap_or_else(|_| vec![]);
-            Ok(tasks)
-        }
-        Err(_) => {
-            // Create the file if it doesn't exist
-            fs::File::create(filename)?;
-            Ok(vec![])
-        }
-    }
+    let file_content = fs::read_to_string(filename).unwrap_or_else(|_| {
+        fs::File::create(filename).ok();
+        String::new()
+    });
+    Ok(serde_json::from_str(&file_content).unwrap_or_default())
 }
 
 fn write_tasks_to_file(filename: &str, tasks: &[NewTask]) -> io::Result<()> {
     let data_serialized = serde_json::to_string_pretty(tasks)?;
-    let mut file = fs::OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .open(filename)?;
-    file.write_all(data_serialized.as_bytes())?;
+    fs::write(filename, data_serialized)?;
     Ok(())
 }
 
 pub fn create_new_task(args: &Args) -> io::Result<()> {
     if let Some(task) = &args.add_task {
-        if task.len() > 1 {
+        if task.len() == 2 {
             let new_task = NewTask {
                 name: task[0].to_owned(),
                 completion_time: task[1].to_owned(),
@@ -83,15 +72,13 @@ pub fn create_new_task(args: &Args) -> io::Result<()> {
 }
 
 pub fn view_tasks(args: &Args) -> io::Result<()> {
-    if let Some(view) = &args.view_tasks {
-        if *view {
-            let json_data = read_tasks_from_file("src/serde.json")?;
-            println!("{}", "\n--------------------------\nTasks to be completed: \n--------------------------".bright_red());
-            for (i, task) in json_data.iter().enumerate() {
-                println!("{}", format!("#{}º", i + 1).white());
-                println!("{}", format!("Name: {}", task.name).green());
-                println!("{}", format!("Completion deadline: {}\n", task.completion_time).green());
-            }
+    if let Some(true) = args.view_tasks {
+        let tasks = read_tasks_from_file("src/serde.json")?;
+        println!("{}", "\n--------------------------\nTasks to be completed: \n--------------------------".bright_red());
+        for (i, task) in tasks.iter().enumerate() {
+            println!("{}", format!("#{}º", i + 1).white());
+            println!("{}", format!("Name: {}", task.name).green());
+            println!("{}", format!("Completion deadline: {}\n", task.completion_time).green());
         }
     }
     Ok(())
@@ -99,11 +86,9 @@ pub fn view_tasks(args: &Args) -> io::Result<()> {
 
 pub fn remove_task(args: &Args) -> io::Result<()> {
     if let Some(task_to_remove) = &args.remove_task {
-        let mut json_data = read_tasks_from_file("src/serde.json")?;
-        json_data.retain(|task| task.name != *task_to_remove);
-
-        write_tasks_to_file("src/serde.json", &json_data)?;
-
+        let mut tasks = read_tasks_from_file("src/serde.json")?;
+        tasks.retain(|task| task.name != *task_to_remove);
+        write_tasks_to_file("src/serde.json", &tasks)?;
         println!("{}", "Task removed successfully.".green());
     }
     Ok(())
@@ -111,26 +96,25 @@ pub fn remove_task(args: &Args) -> io::Result<()> {
 
 pub fn update_task_name(args: &Args) -> io::Result<()> {
     if let Some(task_to_update) = &args.update_name {
-        if task_to_update.len() < 2 {
-            println!("{}", "You must provide the current name and the new name of the task.".red());
-            return Ok(());
-        }
+        if task_to_update.len() == 2 {
+            let mut tasks = read_tasks_from_file("src/serde.json")?;
+            let mut task_found = false;
 
-        let mut json_data = read_tasks_from_file("src/serde.json")?;
-        let mut task_found = false;
-
-        for task in json_data.iter_mut() {
-            if task.name == task_to_update[0] {
-                task.name = task_to_update[1].to_owned();
-                task_found = true;
-                break;
+            for task in tasks.iter_mut() {
+                if task.name == task_to_update[0] {
+                    task.name = task_to_update[1].to_owned();
+                    task_found = true;
+                    break;
+                }
             }
-        }
-        if task_found {
-            write_tasks_to_file("src/serde.json", &json_data)?;
-            println!("{}", "Task updated successfully.".green());
+            if task_found {
+                write_tasks_to_file("src/serde.json", &tasks)?;
+                println!("{}", "Task updated successfully.".green());
+            } else {
+                println!("{}", "Task not found.".red());
+            }
         } else {
-            println!("{}", "Task not found.".red());
+            println!("{}", "You must provide the current name and the new name of the task.".red());
         }
     }
     Ok(())
@@ -138,26 +122,25 @@ pub fn update_task_name(args: &Args) -> io::Result<()> {
 
 pub fn update_task_completion_time(args: &Args) -> io::Result<()> {
     if let Some(task_to_update) = &args.update_concluded_time {
-        if task_to_update.len() < 2 {
-            println!("{}", "You must provide the task name and the new completion time.".red());
-            return Ok(());
-        }
+        if task_to_update.len() == 2 {
+            let mut tasks = read_tasks_from_file("src/serde.json")?;
+            let mut task_found = false;
 
-        let mut json_data = read_tasks_from_file("src/serde.json")?;
-        let mut task_found = false;
-
-        for task in json_data.iter_mut() {
-            if task.name == task_to_update[0] {
-                task.completion_time = task_to_update[1].to_owned();
-                task_found = true;
-                break;
+            for task in tasks.iter_mut() {
+                if task.name == task_to_update[0] {
+                    task.completion_time = task_to_update[1].to_owned();
+                    task_found = true;
+                    break;
+                }
             }
-        }
-        if task_found {
-            write_tasks_to_file("src/serde.json", &json_data)?;
-            println!("{}", "Task updated successfully.".green());
+            if task_found {
+                write_tasks_to_file("src/serde.json", &tasks)?;
+                println!("{}", "Task updated successfully.".green());
+            } else {
+                println!("{}", "Task not found.".red());
+            }
         } else {
-            println!("{}", "Task not found.".red());
+            println!("{}", "You must provide the task name and the new completion time.".red());
         }
     }
     Ok(())
@@ -165,22 +148,21 @@ pub fn update_task_completion_time(args: &Args) -> io::Result<()> {
 
 pub fn complete_task(args: &Args) -> io::Result<()> {
     if let Some(concluded_task) = &args.concluded_task {
-        let mut json_file = read_tasks_from_file("src/serde.json")?;
+        let mut tasks = read_tasks_from_file("src/serde.json")?;
         let mut completed_tasks = read_tasks_from_file("src/completed_tasks.json").unwrap_or_default();
-        let mut task_found = false;
+        let initial_len = tasks.len();
 
-        json_file.retain(|task| {
+        tasks.retain(|task| {
             if task.name == *concluded_task {
                 completed_tasks.push(task.clone());
-                task_found = true;
                 false
             } else {
-                true 
+                true
             }
         });
 
-        if task_found {
-            write_tasks_to_file("src/serde.json", &json_file)?;
+        if tasks.len() < initial_len {
+            write_tasks_to_file("src/serde.json", &tasks)?;
             write_tasks_to_file("src/completed_tasks.json", &completed_tasks)?;
             println!("{}", "Task added to completed tasks.".green());
         } else {
@@ -191,15 +173,13 @@ pub fn complete_task(args: &Args) -> io::Result<()> {
 }
 
 pub fn view_concluded_tasks(args: &Args) -> io::Result<()> {
-    if let Some(view) = &args.view_concluded_tasks {
-        if *view {
-            let json_data = read_tasks_from_file("src/completed_tasks.json")?;
-            println!("{}", "\n--------------------------\nCompleted tasks: \n--------------------------".bright_red());
-            for (i, task) in json_data.iter().enumerate() {
-                println!("{}", format!("#{}º", i + 1).white());
-                println!("{}", format!("Name: {}", task.name).green());
-                println!("{}", format!("Completion deadline: {}\n", task.completion_time).green());
-            }
+    if let Some(true) = args.view_concluded_tasks {
+        let tasks = read_tasks_from_file("src/completed_tasks.json")?;
+        println!("{}", "\n--------------------------\nCompleted tasks: \n--------------------------".bright_red());
+        for (i, task) in tasks.iter().enumerate() {
+            println!("{}", format!("#{}º", i + 1).white());
+            println!("{}", format!("Name: {}", task.name).green());
+            println!("{}", format!("Completion deadline: {}\n", task.completion_time).green());
         }
     }
     Ok(())
