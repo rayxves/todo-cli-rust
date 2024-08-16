@@ -40,51 +40,37 @@ This project was created to learn about file systems and the basics of serializa
 ### Adding a Task
 Add a new task with a name and completion date:
 
-    ```bash
-cargo run -- --add-task "Task Name" "Completion Date"
-```
+```bash cargo run -- --add-task "Task Name" "Completion Date" ```
 
 ### Viewing All Tasks
 View all tasks that are yet to be completed:
 
 
-```bash
-cargo run -- --view-tasks="true"
-```
+```bash cargo run -- --view-tasks="true" ```
 
 ### Removing a Task
 Remove a task by its name:
 
 
-```bash
-cargo run -- --remove-task "Task Name"
-```
+```bash cargo run -- --remove-task "Task Name"```
 
 ### Updating a Task's Name
 Update the name of a task:
 
-```bash
-cargo run -- --update-name "Old Task Name" "New Task Name"
-```
+```bash cargo run -- --update-name "Old Task Name" "New Task Name" ```
 
 ### Updating a Task's Completion Time
 Update the completion time of a task:
 
 
-```bash
-cargo run -- --update-concluded-time "Task Name" "New Completion Date"
-```
+```bash cargo run -- --update-concluded-time "Task Name" "New Completion Date" ```
 
 ### Marking a Task as Completed
 Mark a task as completed and move it to a separate list:
 
-```bash
-cargo run -- --concluded-task "Task Name"
-```
+```bash cargo run -- --concluded-task "Task Name" ```
 
 ### Viewing Completed Tasks
 View all tasks that have been marked as completed:
 
- ```bash
-cargo run -- --view-concluded-tasks="true"
-```
+ ```bash cargo run -- --view-concluded-tasks="true"```
