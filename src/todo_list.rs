@@ -2,7 +2,7 @@ use clap::Parser;
 use serde::{Serialize, Deserialize};
 use serde_json;
 use std::fs;
-use std::io::{self, Read, Write};
+use std::io::{self};
 use colored::*;
 
 /// Struct para armazenar os argumentos do CLI.
@@ -43,6 +43,7 @@ fn read_tasks_from_file(filename: &str) -> io::Result<Vec<NewTask>> {
         String::new()
     });
     Ok(serde_json::from_str(&file_content).unwrap_or_default())
+
 }
 
 fn write_tasks_to_file(filename: &str, tasks: &[NewTask]) -> io::Result<()> {
