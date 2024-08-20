@@ -25,7 +25,7 @@ pub struct Args {
     pub view_tasks: Option<bool>,
 
     #[arg(short, long, help = "Marks a task as completed by name.")]
-    pub concluded_task: Option<String>,
+    pub mark_concluded_task: Option<String>,
 
     #[arg(short = 'w', long, help = "Prints all completed tasks.")]
     pub view_concluded_tasks: Option<bool>
@@ -148,7 +148,7 @@ pub fn update_task_completion_time(args: &Args) -> io::Result<()> {
 }
 
 pub fn complete_task(args: &Args) -> io::Result<()> {
-    if let Some(concluded_task) = &args.concluded_task {
+    if let Some(concluded_task) = &args.mark_concluded_task {
         let mut tasks = read_tasks_from_file("src/serde.json")?;
         let mut completed_tasks = read_tasks_from_file("src/completed_tasks.json").unwrap_or_default();
         let initial_len = tasks.len();

@@ -12,7 +12,7 @@ fn main() {
         Args { remove_task: Some(_), .. } => remove_task(&args).unwrap(),
         Args { update_name: Some(_), .. } => update_task_name(&args).unwrap(),
         Args { update_concluded_time: Some(_), .. } => update_task_completion_time(&args).unwrap(),
-        Args { concluded_task: Some(_), .. } => complete_task(&args).unwrap(),
+        Args { mark_concluded_task: Some(_), .. } => complete_task(&args).unwrap(),
         Args { view_tasks: Some(true), .. } => view_tasks(&args).unwrap(),
         Args { view_concluded_tasks: Some(true), .. } => view_concluded_tasks(&args).unwrap(),
         _ => println!("{}", "No valid command provided.".red())
